@@ -53,15 +53,89 @@ adder_16bit DUT (.a(tb_a), .b(tb_b), .carry_in(tb_carry_in), .sum(tb_sum), .over
 initial begin
   // Create the test-vector array with enough slots for test cases
   // STUDENT TODO: Update the array declaration to have enough slots
-  tb_test_cases = new[1];
+  tb_test_cases = new[13];
 
   // First Test Case/Test-Vector
-  tb_test_cases[0].test_name = "Zeros Check";
+  tb_test_cases[0].test_name = "Zeros";
   tb_test_cases[0].test_a    = '0;
   tb_test_cases[0].test_b    = '0;
   tb_test_cases[0].test_cin  = 1'b0;
 
   // STUDENT TODO: Add your additional test cases here after increasing the array size
+  
+  // First Test Case/Test-Vector
+  tb_test_cases[1].test_name = "Large Small";
+  tb_test_cases[1].test_a    = 16'hfffa;
+  tb_test_cases[1].test_b    = 16'h0002;
+  tb_test_cases[1].test_cin  = 1'b0;
+
+  // Second Test Case/Test-Vector
+  tb_test_cases[2].test_name = "Small Large";
+  tb_test_cases[2].test_a    = 16'h0002;
+  tb_test_cases[2].test_b    = 16'hfffa;
+  tb_test_cases[2].test_cin  = 1'b0;
+  
+  
+  // Third Test Case/Test-Vector
+  tb_test_cases[3].test_name = "Large Large";
+  tb_test_cases[3].test_a    = 16'heeee;
+  tb_test_cases[3].test_b    = 16'hcccc;
+  tb_test_cases[3].test_cin  = 1'b0;
+
+  // Fourth Test Case/Test-Vector
+  tb_test_cases[4].test_name = "Small Small";
+  tb_test_cases[4].test_a    = 16'h0123;
+  tb_test_cases[4].test_b    = 16'h4567;
+  tb_test_cases[4].test_cin  = 1'b0;
+
+  // Fifth Test Case/Test-Vector
+  tb_test_cases[5].test_name = "Extra 1";
+  tb_test_cases[5].test_a    = 16'h9283;
+  tb_test_cases[5].test_b    = 16'h1000;
+  tb_test_cases[5].test_cin  = 1'b1;
+
+  // Sixth Test Case/Test-Vector
+  tb_test_cases[6].test_name = "Extra 2";
+  tb_test_cases[6].test_a    = 16'hffff;
+  tb_test_cases[6].test_b    = 16'hffff;
+  tb_test_cases[6].test_cin  = 1'b1;
+
+  // Seventh Test Case/Test-Vector
+  tb_test_cases[7].test_name = "Extra 3";
+  tb_test_cases[7].test_a    = 16'hffff;
+  tb_test_cases[7].test_b    = 16'hffff;
+  tb_test_cases[7].test_cin  = 1'b0;
+
+  // Eighth Test Case/Test-Vector
+  tb_test_cases[8].test_name = "Extra 4";
+  tb_test_cases[8].test_a    = 16'h0000;
+  tb_test_cases[8].test_b    = 16'h0000;
+  tb_test_cases[8].test_cin  = 1'b1;
+
+  // Ninth Test Case/Test-Vector
+  tb_test_cases[9].test_name = "Extra 5";
+  tb_test_cases[9].test_a    = 16'h0000;
+  tb_test_cases[9].test_b    = 16'h0000;
+  tb_test_cases[9].test_cin  = 1'b0;
+
+  // Tenth Test Case/Test-Vector
+  tb_test_cases[10].test_name = "Extra 5";
+  tb_test_cases[10].test_a    = 16'h1234;
+  tb_test_cases[10].test_b    = 16'h4567;
+  tb_test_cases[10].test_cin  = 1'b1;
+
+  // Eleventh Test Case/Test-Vector
+  tb_test_cases[11].test_name = "Extra 5";
+  tb_test_cases[11].test_a    = 16'hffff;
+  tb_test_cases[11].test_b    = 16'h0000;
+  tb_test_cases[11].test_cin  = 1'b1;
+
+  // Twelve Test Case/Test-Vector
+  tb_test_cases[12].test_name = "Extra 5";
+  tb_test_cases[12].test_a    = 16'h0000;
+  tb_test_cases[12].test_b    = 16'hffff;
+  tb_test_cases[12].test_cin  = 1'b1;
+
 end
 
 // Handle expected results bit-slice mappings

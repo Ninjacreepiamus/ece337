@@ -19,12 +19,12 @@ include /home/ecegrid/a/ece337/Course_Prod/course_make_vars
 #
 # **** list all files on the same line. DO NOT USE the "\" escape character to extend across 
 #      multiple lines. The grading script expects all file names on one line. 
-COMPONENT_FILES	:= 
+COMPONENT_FILES	:= adder_1bit.sv adder_nbit.sv
 
 # Specify the name of the top level file (do not include the source folder in the name)
 # NOTE: YOU WILL NEED TO SET THIS VARIABLE'S VALUE WHEN WORKING WITH HEIRARCHICAL DESIGNS
 # AND THE AUTOMATED GRADING SYSTEM
-TOP_LEVEL_FILE	:= 
+TOP_LEVEL_FILE	:= adder_16bit.sv
 
 # Specify the filepath of the test bench you want to use (ie. tb_top_level.sv)
 # (do not include the source folder in the name)
@@ -339,9 +339,11 @@ define SYN_CMDS
 analyze -format sverilog -lib WORK {$(DEP_SUB_FILES) $(MAIN_FILE)}
 elaborate $(MOD_NAME) -lib WORK
 uniquify
+
 # Step 2: Set design constraints
 # Uncomment below to set timing, area, power, etc. constraints
-# set_max_delay <delay> -from "<input>" -to "<output>"
+# set_max_delay 6.40 -from "b[0]" -to "sum[15]"
+# set_structure true -design adder_16bit -boolean true -boolean_effort medium
 # set_max_area <area>
 # set_max_total_power <power> mW
 $(if $(and $(CLOCK_NAME), $(CLOCK_PERIOD)), create_clock "$(CLOCK_NAME)" -name "$(CLOCK_NAME)" -period $(CLOCK_PERIOD))
@@ -350,12 +352,33 @@ $(if $(and $(CLOCK_NAME), $(CLOCK_PERIOD)), create_clock "$(CLOCK_NAME)" -name "
 compile -map_effort medium
 
 # Step 4: Output reports
-report_timing -path full -delay max -max_paths 1 -nworst 1 > reports/$(MOD_NAME).rep
-report_area >> reports/$(MOD_NAME).rep
-report_power -hier >> reports/$(MOD_NAME).rep
+report_timing -path full -delay max -max_paths 1 -nworst 1 > reports/$(MOD_NAME)1.rep
+report_area >> reports/$(MOD_NAME)1.rep
+report_power -hier >> reports/$(MOD_NAME)1.rep
 
 # Step 5: Output final VHDL and Verilog files
 write_file -format verilog -hierarchy -output "mapped/$(MOD_NAME).v"
+
+# Second Pass:
+
+# Step 2: Set design constraints
+set_max_delay 6.40 -from "b[0]" -to "sum[15]"
+# set_max_area <area>
+# set_max_total_power <power> mW
+$(if $(and $(CLOCK_NAME), $(CLOCK_PERIOD)), create_clock "$(CLOCK_NAME)" -name "$(CLOCK_NAME)" -period $(CLOCK_PERIOD))
+
+# Step 3: Compile the design
+set_structure true -design adder_16 -boolean true -boolean_effort medium
+compile -map_effort high -boundary_optimization
+
+# Step 4: Output reports
+report_timing -path full -delay max -max_paths 1 -nworst 1 > reports/$(MOD_NAME)2.rep
+report_area >> reports/$(MOD_NAME)2.rep
+report_power -hier >> reports/$(MOD_NAME)2.rep
+
+# Step 5: Output final VHDL and Verilog files
+write_file -format verilog -hierarchy -output "mapped/$(MOD_NAME).v"
+
 echo "\nScript Done\n"
 echo "\nChecking Design\n"
 check_design

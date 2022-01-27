@@ -368,4 +368,3 @@ syn_mapped do_mapping.tcl:
 	@echo -e '$(subst $(newline),\n,$(subst \n,\\n,${SYN_CMDS}))' > do_mapping.tcl
 	$(DC_SHELL) -x "source -echo do_mapping.tcl"
 	@echo -e "Done\n\n"
-
