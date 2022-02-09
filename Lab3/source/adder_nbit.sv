@@ -21,7 +21,6 @@ module adder_nbit
 
     generate
 
-
         for(i = 0; i <= (BIT_WIDTH - 1); i = i + 1) begin
     	    always @(a) begin
 		        assert((a[i] == 1'b1) || (a[i] == 1'b0))
