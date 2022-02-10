@@ -10,6 +10,7 @@ module tb_flex_counter();
   
   localparam  INACTIVE_VALUE     = 'b0;
   localparam  RESET_OUTPUT_VALUE = INACTIVE_VALUE;
+  localparam  ROLLOVER_FLAG = INACTIVE_VALUE;
   localparam  START_COUNT = 1'b1;
   localparam  END_COUNT = 1'b0;
   localparam NUM_CNT_BITS = 4;
@@ -118,7 +119,7 @@ endtask
 
 //Initialize tb_values, just the inputs
 initial 
-  begin
+begin
   tb_test_num = 0;
   tb_n_rst = 1'b1;
   tb_clear = 1'b0;
@@ -157,8 +158,100 @@ initial
   @(posedge tb_clk);
   #(2 * FF_HOLD_TIME);
   tb_n_rst = 1'b1; //Deactivate reset
+  @(CHECK_DELAY)
 
   check_output(RESET_OUTPUT_VALUE, "after reset was released");
-  reset_dut;
-  end
+  check_rollover(ROLLOVER_FLAG, "after reset was released");
+ 
+//********************************************
+//        TEST 2: Rollover for a rollover value not power ^2
+//********************************************
+@(negedge tb_clk);
+tb_test_num = tb_test_num + 1;
+tb_test_case = "Rollover not squared";
+reset_dut();
+
+tb_count_enable = START_COUNT;
+tb_rollover_val = 4'b0101;
+
+#(CLK_PERIOD); // 1
+
+#(CLK_PERIOD); // 2 
+
+#(CLK_PERIOD); // 3
+
+#(CLK_PERIOD); // 4
+
+#(CLK_PERIOD); // 5
+
+#(CHECK_DELAY);
+check_rollover(1'b1, "Right when the count is at 5");
+check_output(4'b101, "Count is at 5");
+
+#(CLK_PERIOD); // 6
+
+#(CHECK_DELAY);
+check_rollover(1'b0, "Count is now at 6");
+check_output(4'b110, "count is 6 now");
+ 
+//********************************************
+//        TEST 3: Continuous counting
+//********************************************
+@(negedge tb_clk);
+tb_test_num = tb_test_num + 1;
+tb_test_case = "Rollover not squared";
+reset_dut();
+
+tb_count_enable = START_COUNT;
+tb_rollover_val = 4'b1111;
+
+#(CLK_PERIOD * 26); // 4'b1010
+
+#(CHECK_DELAY);
+check_rollover(1'b0, "Right when the count is at 10");
+check_output(4'b1010, "Count is at 10");
+
+end
+
+//********************************************
+//        TEST 4: Discontinuous counting
+//********************************************
+@(negedge tb_clk);
+tb_test_num = tb_test_num + 1;
+tb_test_case = "Rollover not squared";
+reset_dut();
+
+tb_count_enable = START_COUNT;
+tb_rollover_val = 4'b1111;
+
+#(CLK_PERIOD * 26); // 4'b1010
+
+tb_n_rst = 1'b0;
+
+#(CLK_PERIOD * 2);
+
+#(CHECK_DELAY);
+check_rollover(1'b0, "Right when the count is at 10");
+check_output(4'b0010, "Count is at 10");
+
+//********************************************
+//        TEST 5: Clear while counting
+//********************************************
+@(negedge tb_clk);
+tb_test_num = tb_test_num + 1;
+tb_test_case = "Rollover not squared";
+reset_dut();
+
+tb_count_enable = START_COUNT;
+tb_rollover_val = 4'b1111;
+
+#(CLK_PERIOD * 5); // 4'b101
+
+#(CLK_PERIOD * 2);
+
+#(CHECK_DELAY);
+check_rollover(1'b0, "Right when the count is at 10");
+check_output(4'b0010, "Count is at 10");
+
+end
 endmodule
