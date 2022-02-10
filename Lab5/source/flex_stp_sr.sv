@@ -21,7 +21,7 @@ module flex_stp_sr
   logic [(NUM_BITS - 1):0] next_data;
   always_ff @(posedge clk, negedge n_rst) begin
     if(~n_rst)
-      parallel_out <= 'b0;
+      parallel_out <= '1;
     else
       parallel_out <= next_data;
   end
@@ -29,12 +29,10 @@ module flex_stp_sr
   always_comb begin
     next_data = parallel_out;
     if(shift_enable) begin
-      if(SHIFT_MSB == 1) begin
-        next_data = {serial_in, parallel_out[7:1]};
-      end
-      else begin
-        next_data = {parallel_out[6:0], serial_in};
-      end
+      if(SHIFT_MSB == 1)
+        next_data = {parallel_out[(NUM_BITS - 2):0], serial_in};
+      else
+        next_data = {serial_in, parallel_out[(NUM_BITS - 1):1]};
     end
   end
 endmodule

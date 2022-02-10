@@ -236,6 +236,62 @@ module tb_stp_sr_4_msb();
 
     // STUDENT TODO: Add more test cases here
 
+    // ************************************************************************
+    // Test Case 4: Normal Operation with Contiguous Ones Fill
+    // ************************************************************************
+    tb_test_num  = tb_test_num + 1;
+    tb_test_case = "Contiguous Ones Fill";
+    // Start out with inactive value and reset the DUT to isolate from prior tests
+    tb_serial_in = 1'b1;
+    reset_dut();
+
+    // Define the test data stream for this test case
+    tb_test_data = '{SR_SIZE_BITS{1'b1}};
+
+    // Define the expected result
+    tb_expected_ouput = '1;
+
+    // Contiguously stream enough ones to fill the shift register
+    send_stream(tb_test_data);
+
+    // Check the result of the full stream
+    check_output("after zero fill stream");
+
+    // ************************************************************************
+    // Test Case 5: Normal Operation with DisContiguous Ones Fill
+    // ************************************************************************
+    tb_test_num  = tb_test_num + 1;
+    tb_test_case = "DisContiguous Ones Fill";
+    // Start out with inactive value and reset the DUT to isolate from prior tests
+    tb_serial_in = 1'b1;
+    reset_dut();
+
+    // Define the test data stream for this test case
+    tb_test_data = '{SR_SIZE_BITS{1'b1}};
+
+    // Bootstrap the expected output signal
+    tb_expected_ouput = RESET_OUTPUT_VALUE;
+
+    // Disconiguously stream out all of the bits in the provided input vector
+    for(tb_bit_num = 0; tb_bit_num < tb_test_data.size(); tb_bit_num++) begin
+      // Send the current bit
+      send_bit(tb_test_data[tb_bit_num]);
+      // Update expected output value
+      tb_expected_ouput = {tb_expected_ouput[(SR_MAX_BIT-1):0], 1'b1};
+
+      // Check that the current bit got pulled in
+      $sformat(tb_stream_check_tag, "for bit %0d", tb_bit_num);
+      check_output(tb_stream_check_tag);
+
+      // Keep the value the same but leave shift enable off for at least a cycle
+      // Note: The send bit task already turns off the enable before finishing
+      //       -> Just wait for another clock cycle to pass before looping
+      @(posedge tb_clk);
+      $sformat(tb_stream_check_tag, "after bit %0d's pause", tb_bit_num);
+      check_output(tb_stream_check_tag);
+
+      // Add some spacing between the check and the start of the next bit
+      #(0.25 * CLK_PERIOD);
+    end
   end
 endmodule
-  

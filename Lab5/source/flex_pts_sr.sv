@@ -22,24 +22,34 @@ module flex_pts_sr
     output logic serial_out
 );
   logic [(NUM_BITS - 1):0] next_data;
+  logic [(NUM_BITS - 1):0] temp;
+  logic next_serial;
+
   always_ff @(posedge clk, negedge n_rst) begin
-    if(~n_rst)
-      parallel_in <= 'b0;
-    else
-      parallel_in <= next_data;
+    if(~n_rst) begin
+      serial_out <= '1;
+      temp <= '1;
+    end
+    else begin
+      temp <= next_data;
+      serial_out <= next_serial;
+    end
   end
 
   always_comb begin
+    next_data = temp;
+    next_serial = serial_out;
       if(load_enable) begin
         next_data = parallel_in;
-        serial_out = next_data[3];
       end
       else begin
-        if(shift_enable)
-            next_data = {1'b0, next_data[15:1]};
-        else
-            next_data = {1'b1, next_data[15:1]};
-        serial_out = next_data[3];
+        if(shift_enable) begin
+            next_data = {1'b1, next_data[(NUM_BITS - 1):1]};
+            if(SHIFT_MSB == 1)
+              next_serial = next_data[(NUM_BITS - 1)];
+            else
+              next_serial = next_data[0];
+        end
       end
   end
 endmodule
