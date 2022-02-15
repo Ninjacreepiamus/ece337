@@ -155,13 +155,15 @@ begin
 
   check_output(RESET_OUTPUT_VALUE, "after clock cycle while reset on");
 
-  @(posedge tb_clk);
-  #(2 * FF_HOLD_TIME);
+  @(negedge tb_clk)
   tb_n_rst = 1'b1; //Deactivate reset
-  @(CHECK_DELAY)
 
-  check_output(RESET_OUTPUT_VALUE, "after reset was released");
-  check_rollover(ROLLOVER_FLAG, "after reset was released");
+
+  @(posedge tb_clk);
+  #(CHECK_DELAY)
+
+  check_output(4'b0001, "after reset was released");
+  check_rollover(1'b0, "after reset was released");
  
 //********************************************
 //        TEST 2: Rollover for a rollover value not power ^2
@@ -174,32 +176,24 @@ reset_dut();
 tb_count_enable = START_COUNT;
 tb_rollover_val = 4'b0101;
 
-#(CLK_PERIOD); // 1
+#(CLK_PERIOD * 7);
 
-#(CLK_PERIOD); // 2 
-
-#(CLK_PERIOD); // 3
-
-#(CLK_PERIOD); // 4
-
-#(CLK_PERIOD); // 5
-
+@(posedge tb_clk);
 #(CHECK_DELAY);
-check_rollover(1'b1, "Right when the count is at 5");
-check_output(4'b101, "Count is at 5");
+check_rollover(1'b1, "TEST 2: Rollover at 5");
+check_output(4'b0101, "TEST 2: Count at 5");
 
-#(CLK_PERIOD); // 6
-
+@(posedge tb_clk);
 #(CHECK_DELAY);
-check_rollover(1'b0, "Count is now at 6");
-check_output(4'b110, "count is 6 now");
+check_rollover(1'b0, "TEST 2: Rollover after completion goes back to 0");
+check_output(4'b0001, "TEST 2: Count output rolled over back to 1");
  
 //********************************************
 //        TEST 3: Continuous counting
 //********************************************
 @(negedge tb_clk);
 tb_test_num = tb_test_num + 1;
-tb_test_case = "Rollover not squared";
+tb_test_case = "Continuous counting";
 reset_dut();
 
 tb_count_enable = START_COUNT;
@@ -207,51 +201,60 @@ tb_rollover_val = 4'b1111;
 
 #(CLK_PERIOD * 26); // 4'b1010
 
+@(posedge tb_clk);
 #(CHECK_DELAY);
-check_rollover(1'b0, "Right when the count is at 10");
-check_output(4'b1010, "Count is at 10");
-
-end
+check_rollover(1'b0, "TEST 3: Rollover should be 0 when count is at 1110");
+check_output(4'b1110, "TEST 3: Count output should be 1110");
 
 //********************************************
 //        TEST 4: Discontinuous counting
 //********************************************
 @(negedge tb_clk);
 tb_test_num = tb_test_num + 1;
-tb_test_case = "Rollover not squared";
+tb_test_case = "Discontinuous counting";
 reset_dut();
 
 tb_count_enable = START_COUNT;
 tb_rollover_val = 4'b1111;
 
-#(CLK_PERIOD * 26); // 4'b1010
+#(CLK_PERIOD * 6);
 
-tb_n_rst = 1'b0;
+tb_count_enable = END_COUNT;
+
+#(CLK_PERIOD * 4);
+
+@(negedge tb_clk)
+tb_count_enable = START_COUNT;
 
 #(CLK_PERIOD * 2);
 
+@(posedge tb_clk);
 #(CHECK_DELAY);
-check_rollover(1'b0, "Right when the count is at 10");
-check_output(4'b0010, "Count is at 10");
+check_rollover(1'b0, "TEST 4: Rollover value should be 0");
+check_output(4'b1011, "TEST 4: Count output should be blank");
 
 //********************************************
 //        TEST 5: Clear while counting
 //********************************************
 @(negedge tb_clk);
 tb_test_num = tb_test_num + 1;
-tb_test_case = "Rollover not squared";
+tb_test_case = "Clear while counting";
 reset_dut();
 
 tb_count_enable = START_COUNT;
 tb_rollover_val = 4'b1111;
 
-#(CLK_PERIOD * 5); // 4'b101
+#(CLK_PERIOD * 8); // 4'b101
 
-#(CLK_PERIOD * 2);
+tb_clear = 1'b1;
 
+#(CLK_PERIOD);
+
+@(posedge tb_clk);
 #(CHECK_DELAY);
-check_rollover(1'b0, "Right when the count is at 10");
-check_output(4'b0010, "Count is at 10");
+check_output(4'b0000, "TEST 5: Count output should be 0 when cleared");
+check_rollover(1'b0, "TEST 5: Rollover flag should be 0 when the clear is on");
 
+$stop;
 end
 endmodule

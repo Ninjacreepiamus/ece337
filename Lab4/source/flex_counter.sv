@@ -35,29 +35,31 @@ module flex_counter
   end 
    
   always_comb begin 
-    next_rollover_flag = 'b0; 
-     
-    if(count_enable == 1'b1) begin 
-      if(count == rollover_val) begin 
-        next_count = 'b0; 
-        next_rollover_flag = 'b1; 
-      end 
-     
-      if(clear == 1'b1) begin 
-        next_count = 'b0; 
-        next_rollover_flag = 'b0; 
-      end 
-     
-      else 
-        next_count = count + 1; 
-    end 
-     
-    else begin 
-      next_count = count; 
-      next_rollover_flag = rollover_flag; 
-    end 
-  end 
-   
-  assign count_out = count; 
-  
-endmodule 
+    next_rollover_flag = 1'b0; 
+    
+    if(clear == 1'b1) begin //If synchronous clear is set
+      next_count = '0;
+      next_rollover_flag = 1'b0;
+    end
+
+    else begin
+      if(count_enable == 1'b1) begin //If count is enabled
+        if(count == rollover_val) 
+          next_count = 'b1; //Count becomes 1
+        else 
+          next_count = count + 1; //Otherwise keep counting
+
+        if(next_count == rollover_val)
+          next_rollover_flag = 1'b1; //Rollover flag becomes 1
+        else
+          next_rollover_flag = 1'b0; //Rollover flag stays 0
+      end
+
+      else begin 
+        next_count = count; 
+        next_rollover_flag = rollover_flag; 
+      end
+    end
+  end
+  assign count_out = count;
+endmodule
