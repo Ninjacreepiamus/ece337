@@ -287,7 +287,7 @@ module tb_fir_filter();
 			test_stream(tb_test_vectors[tb_std_test_case]);
 		end
 		
-		// TODO: Add non standard test cases here
-		
+	// TODO: Add non standard test cases here
+	$stop;		
 	end
 endmodule
