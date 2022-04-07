@@ -1,0 +1,255 @@
+//if we read, then put memory into prdata
+//if we write, then we put the pwdata into the memory
+
+logic [3:0] rsel;
+logic [3:0] wsel;
+logic [15:0] status_register;
+logic [15:0] result_register;
+logic [15:0] sample_data;
+logic [15:0] fir_coefficient;
+logic [7:0] new_coefficient_reg;
+
+
+//htrans can be idle which means we're not doing anything.
+htrans is 0 or 2
+when htrans is 2 then we have a transaction or if 0 then it is idle
+
+rsel = '0;
+wsel = '0;
+hrdata = '0;
+
+if(hsel)	
+case(haddr)
+
+//Do we need if(hsel == 1 && hsize == desired_size) else->hresp_error?
+	0x0:
+		hresp = 0;
+		rsel = haddr;
+		if(hsize == 0)
+			hrdata[7:0] = status_register[7:0];
+		else
+			hrdata = status_register;
+		if(hwrite == 1)
+			hresp = 1;
+		
+	0x1:	
+		hresp = 0;
+		rsel = haddr;
+		if(hsize == 0)
+			hrdata[15:8] = status_register[15:8];
+		else
+			hrdata = status_register;
+			
+		if(hwrite == 1)
+			hresp = 1;
+
+	0x2:	
+		hresp = 0;
+		rsel = haddr;
+		if(hsize == 0)
+			hrdata[7:0] = result_register[7:0];
+		else
+			hrdata = result_register;
+		if(hwrite == 1)
+			hresp = 1;
+	0x3:
+		hresp = 0;
+		rsel = haddr;
+		if(hsize == 0)
+			hrdata[15:8] = result_register[15:8]; //is this right??
+		else
+			hrdata = result_register;
+		if(hwrite == 1)
+			hresp = 1;
+
+	0x4:
+		hresp = 0;
+		if(hwrite == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[7:0] = sample_data[7:0];
+			else
+				hrdata = sample_data;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				sample_data[7:0] = hwdata[7:0];
+			else
+				sample_data = hwdata;	
+
+	0x5:		
+		hresp = 0;
+		if(hwrite == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[15:8] = sample_data[15:8];
+			else
+				hrdata = sample_data;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				sample_data[15:8] = hwdata[15:8];
+			else
+				sample_data = hwdata;	
+
+	0x6:
+		hresp = 0;
+		if(hwrite == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[7:0] = fir_coefficient0[7:0];
+			else
+				hrdata = fir_coefficient0;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient0[7:0] = hwdata[7:0];
+			else
+				fir_coefficient0 = hwdata
+
+	0x7:
+		hresp = 0;
+		if(hwrite == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[15:8] = fir_coefficient0[15:8];
+			else
+				hrdata = fir_coefficient0;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient0[15:8] = hwdata[15:8];
+			else
+				fir_coefficient0 = hwdata;
+
+	0x8:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[7:0] = fir_coefficient1[7:0];
+			else
+				hrdata = fir_coefficient1;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient1[7:0] = hwdata[7:0]
+			else
+				fir_coefficient1 = hwdata;
+
+	0x9:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[15:8] = fir_coefficient1[15:8];
+			else
+				hrdata = fir_coefficient1;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient1[15:8] = hwdata[15:8]
+			else
+				fir_coefficient1 = hwdata;
+
+	0xa:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[7:0] = fir_coefficient2[7:0];
+			else
+				hrdata = fir_coefficient2;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient2[7:0] = hwdata[7:0];
+			else
+				fir_coefficient2 = hwdata;
+	0xb:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[15:8] = fir_coefficient2[15:8];
+			else
+				hrdata = fir_coefficient2;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient2[15:8] = hwdata[15:8];
+			else
+				fir_coefficient2 = hwdata;
+
+
+	0xc:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[7:0] = fir_coefficient3[7:0];
+			else
+				hrdata = fir_coefficient3;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient3[7:0] = hwdata[7:0];
+			else
+				fir_coefficient3 = hwdata;
+	0xd:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[15:8] = fir_coefficient3[15:8];
+			else
+				hrdata = fir_coefficient3;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				fir_coefficient3[15:8] = hwdata[15:8];
+			else
+				fir_coefficient3 = hwdata;
+
+	0xe:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[7:0] = new_coefficient_reg[7:0];
+			else
+				hrdata = new_coefficient_reg;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				new_coefficient_reg[7:0] = hwdata[7:0];
+			else
+				new_coefficient_reg = hwdata;
+	
+	0xf:
+		hresp = 0;
+		if(hsel == 0)
+			rsel = haddr;
+			if(hsize == 0)
+				hrdata[15:8] = new_coefficient_reg[15:8];
+			else
+				hrdata = new_coefficient_reg;
+		else
+			wsel = haddr;
+			if(hsize == 0)
+				new_coefficient_reg[15:8] = hwdata[15:8];
+			else
+				new_coefficient_reg = hwdata;
+	
+	default:
+		hrdata = '0;
+		hresp = 1;
+
+
+//hsize == 0
+write to the first byte of that particular address (can be odd or even address)
+
+
+
+//hsize == 1
+write to the whole 16 bits of the even address (can be odd or even address, but remember to write to correct one)

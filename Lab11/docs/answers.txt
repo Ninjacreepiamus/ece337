@@ -1,0 +1,23 @@
+1. The net layer is used for the section for the supply rings.
+2. Average width is about 9.9 micrometers. Spacing is about the same
+3. Spacing between the inner supply ring and core area is 10. The command that controls this is
+   the around default power domain command inside of supply_rings.tcl
+
+2.2
+1. The layout changed when a bunch of cells were placed on the inside block.
+2. 70%
+3. Now the cells are connected by physical wires with the sroute command, they are rather chained together by one grid
+4. The blue wires connect the cells on the inside of the grid to the outside rails and the red ones
+   connect cells vertically to other cells. The green ones horizantally connect the cells to their neighbors.
+5. Around 80-90% seems to be filled. The sroute command definitely had a lot to do with the extra wires filling up the core.
+
+3
+1. DFFSR cell and DFFPOSX cell
+2. 7 combinational blocks in between
+3. fifo_reg4
+4. The delay time is kind of different in that in the layout one it is 0.18 and the timing path analyzer one is -0.79, so there is a bit of discrepancy.
+
+
+5. New skew is -0.62, so design is improved?
+
+

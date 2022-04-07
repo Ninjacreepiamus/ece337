@@ -1,0 +1,33 @@
+idle:		if(data_ready == 0) goto idle;
+store: 	if(data_ready == 0) goto eidle;
+		reg[5] = data;
+		err = 0;
+zero:		r0 = 0;
+sort1:	r1 = r2; //r1 is sample 1
+sort2:	r2 = r3; //r2 is sample 2
+sort3:	r3 = r4; //r3 is sample 3
+sort4:	r4 = r5; //r4 is sample 4
+
+//9(F0 small neg), 8(F1 large pos), 7(F2 large neg), 6(F3 small pos), 10(temp)
+
+mul1:		r10 = r4 * r9; //sample 4 * F3
+add1:		r0 = r0 + r10; //add small pos coefficient
+		if (V) goto eidle;
+
+mul2:		r10 = r3 * r8; //sample 3 * F2
+sub2:		r0 = r0 - r10; //sub large neg coefficient
+		if (V) goto eidle;
+
+mul3:		r10 = r2 * r7; //sample 2 * F1
+add3:		r0 = r0 + r10; //add large neg coefficient
+		if (V) goto eidle;
+
+mul4:		r10 = r1 * r6; //sample 1 * F0
+sub4:		r0 = r0 - r10; //subtract small neg coefficient
+		if (V) goto eidle;
+		else goto idle;
+		
+
+eidle:	err = 1;
+		if(data_ready == 1) goto store;
+		if(data_ready == 0) goto eidle;

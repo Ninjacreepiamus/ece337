@@ -1,0 +1,8 @@
+1. The images are different because the first is input and the second is output of an FIR filter. This removes the very high and low frequencies and creates a more restricted map of the photo. There are more photos present and these
+are more restricted versions of the map, likely going through the filter more times.
+
+2. $fopen opens the input file and fscanf reads each byte of the photo's data. Ftell shows the current pointer as
+to where we're at in the file, whereas f_seek launches us to a particular part of the file. f_write takes bits and
+writes them to an external file.
+
+3. %c is a single byte character, %d is decimal, %s is string.

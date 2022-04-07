@@ -1,0 +1,102 @@
+//if we read, then put memory into prdata
+//if we write, then we put the pwdata into the memory
+
+logic data_ready;
+logic error_status;
+logic bit_period;
+logic data_size;
+logic rx_data;
+
+if(penable & psel)
+	case(paddr)
+	0x0:
+		data_read = 0;
+		pslverr = 0;
+		rsel = 1;
+		wsel = 0;
+		prdata = data_ready; // 0 or 1
+		if(pwrite == 1)
+			pslverr = 1;
+	0x1:
+		data_read = 0;
+		pslverr = 0;
+		rsel = 1;
+		wsel = 0;
+		prdata = error_status; // 0, 1, or 2
+		if(pwrite == 1)
+			pslverr = 1;
+	0x2:
+		data_read = 0;
+		pslverr = 0;
+		if(pwrite) begin
+			bitperiod = pwdata;
+			rsel = 0;
+			wsel = 1;
+		end
+
+		else begin
+			prdata = bitperiod;
+			rsel = 1;
+			wsel = 0;
+		end
+	0x3:
+		data_read = 0;
+		pslverr = 0;
+		if(pwrite) begin
+			data_ready = pwdata;
+			rsel = 0;
+			wsel = 1;
+		end
+
+		else begin
+			prdata = data_ready;
+			rsel = 1;
+			wsel = 0;
+		end
+	0x4:
+		data_read = 0;
+		pslverr = 0;
+		if(pwrite) begin
+			data_size = pwdata;
+			rsel = 0;
+			wsel = 1;
+		end
+
+		else begin
+			prdata = data_size;
+			rsel = 1;
+			wsel = 0;
+		end
+	0x5:
+		data_read = 0;
+		pslverr = 1;
+		rsel = 0;
+		wsel = 0;
+	0x6:
+		data_read = 1; //data is now read from buffer	
+		pslverr = 0;
+		rsel = 1;
+		wsel = 0;
+		prdata = rx_data;
+		if(pwrite == 1)
+			pslverr = 1;
+
+// (data_ready is the data status register)
+
+//pwrite == 0, read
+//pwrite == 1, write
+
+// 2 and 3 are both for bit period config
+// since size 2
+
+//assert PSLVERR whenever we write to a 
+read only address for instance
+
+// both read and write for 5 will cause a PSLVERR
+
+//psel selects the peripheral, and is the same as
+//the penable (on for all the different cases)
+
+//framing error and overrun to a 2-bit register (error-staturs)
+
+//Data-read should be an output of combinational logic

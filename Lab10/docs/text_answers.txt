@@ -1,0 +1,1 @@
+I think this is because the performance increases whenever the silicon is designed custom compared to a computer doing all the place and route. For high performance, we want to make sure that the different transistors are placed in the way that leads to maximum performance.
